@@ -35,11 +35,11 @@ Application settings below are common for all BTSDK applications and can be conf
 > Set to the UART port you want to use to download the application. For example 'COM6' on Windows or '/dev/ttyWICED\_HCI\_UART0' on Linux or '/dev/tty.usbserial-000154' on macOS. By default, the SDK will auto-detect the port.
 
 ##### ENABLE_DEBUG
-> For HW debugging, configure ENABLE\_DEBUG=1. See the document [AIROC&#8482;-Hardware-Debugging](https://github.com/Infineon/btsdk-docs/blob/master/docs/BT-SDK/WICED-Hardware-Debugging.pdf) for more information. This setting configures GPIO for SWD.<br>
+> For HW debugging, configure ENABLE\_DEBUG=1. See the document [AIROC&#8482;-Hardware-Debugging](https://infineon.github.io/btsdk-docs/BT-SDK/AIROC-Hardware-Debugging.pdf) for more information. This setting configures GPIO for SWD.<br>
 >
    - CYW920819EVB-02/CYW920820EVB-02: SWD signals are shared with D4 and D5, see SW9 in schematics.
    - CYBT-213043-MESH/CYBT-213043-EVAL/CYBT-253059-EVAL: SWD signals are routed to P12=SWDCK and P13=SWDIO. Use expansion connectors to connect VDD, GND, SWDCK, and SWDIO to your SWD Debugger probe.
-   - CYBT-223058-EVAL/CYW920835M2EVB-01/CYBT-243053-EVAL/CYBLE-343072-EVAL-M2B/CYBLE-333074-EVAL-M2B/CYBLE-343072-MESH: SWD signals are routed to P02=SWDCK and P03=SWDIO. Use expansion connectors to connect VDD, GND, SWDCK, and SWDIO to your SWD Debugger probe.
+   - CYBT-223058-EVAL/CYW920835M2EVB-01/CYBT-243053-EVAL/CYBLE-343072-EVAL-M2B/CYBLE-333074-EVAL-M2B/CYBLE-343072-MESH/Vela-IF820-INT-ANT-DVK/Vela-IF820-EXT-ANT-DVK: SWD signals are routed to P02=SWDCK and P03=SWDIO. Use expansion connectors to connect VDD, GND, SWDCK, and SWDIO to your SWD Debugger probe.
    - CYBT-263065-EVAL/CYBT-273063-EVAL: SWD signals are routed to P02=SWDCK and P04=SWDIO. Use expansion connectors to connect VDD, GND, SWDCK, and SWDIO to your SWD Debugger probe.
    - CYBT-343026-EVAL/CYBT-353027-EVAL/CYBT-333047-EVAL: SWD signals are routed to P11=SWDCK and P15=SWDIO. Use expansion connectors to connect VDD, GND, SWDCK, and SWDIO to your SWD Debugger probe.
    - CYBT-413055-EVAL/CYBT-413061-EVAL: SWD signals are routed to P16=SWDCK and P17=SWDIO. Use expansion connectors to connect VDD, GND, SWDCK, and SWDIO to your SWD Debugger probe.
@@ -51,34 +51,45 @@ Application settings below are common for all BTSDK applications and can be conf
    - CYW920736M2EVB-01: SWD hardware debugging requires fly-wire connections. The only option is using P14 for SWDCK and P15 for SWDIO. These route to Arduino header J2, A1 and A0. These can be fly-wired to Arduino header J4, D4 and D5. From there the signals connect to the KitProg3 SWD bridge. In addition, the debug macros (SETUP\_APP\_FOR\_DEBUG\_IF\_DEBUG\_ENABLED and BUSY\_WAIT\_TILL\_MANUAL\_CONTINUE\_IF\_DEBUG\_ENABLED) are placed in sparinit.c in code common to all applications for this device. Most applications for this device call bleprofile\_GPIOInit() in subsequent code, overwriting the SWD pin configuration. To use hardware debugging after the call to bleprofile\_GPIOInit(), place the debug macros in code after that call.
    - CYW943012B2EVK-01: SWD signals are shared with D4 and D5.
    - CYW920820M2EVB-01 & CYW920819M2EVB-01: The default setup uses P03 for SWDIO and P02 for SWDCK. Check the position of SW15 if using JLink with the DEBUG connector.
-   - CYW989820M2EVB-01: SWD hardware debugging requires fly-wire connections to use P12 for SWDIO and P14 for SWDCK. First set SW8 switch to position 1, and then P12 / RSVD_3 can be used for SWDIO. And fly-wire P14 / ARD_D8 on J3.10 to J12.4 to connect SWDCK on RSVD_4 on J12.4.
+   - CYW989820M2EVB-01: SWD hardware debugging requires a fly-wire connection to use P14 for SWDIO. P2 is connected directly to SWDCK / ARD_D4. Fly-wire P14 / ARD_D8 on J3.10 to J4.3 / ARD_D5 to connect SWDIO.
 
    - SWD hardware debugging is not supported on the following:
-   >- CYW920721M2EVK-01
-   >- CYW920835REF-RCU-01
-   >- CYW920819REF-KB-01
-   >- CYW9M2BASE-43012BT
-   >- CYBT-423054-EVAL
-   >- CYBT-423060-EVAL
-   >- CYBT-483056-EVAL
-   >- CYBT-483062-EVAL
-   >- CYW955572BTEVK-01
+      - CYW920721M2EVK-01
+      - CYW920835REF-RCU-01
+      - CYW9M2BASE-43012BT
+      - CYBT-423054-EVAL
+      - CYBT-423060-EVAL
+      - CYBT-483056-EVAL
+      - CYBT-483062-EVAL
+      - CYW955572BTEVK-01
+      - CYW943022BTEVK-01
 
-## Building code examples
+##### DIRECT_LOAD
+> BTSDK chips support downloading applications either to FLASH storage or to RAM storage. Some chips support only one or the other, and some chips support both.
+
+> If a chip only supports one or the other, this variable is not applicable, applications will be downloaded to the appropriate storage supported by the device.
+
+> If a chip supports both FLASH and RAM downloads, the default is to download to FLASH, and the DIRECT_LOAD make variable may be set to 1 in the application makefile (or in the command line make command) to override the default and download to RAM.
+
+> Currently, the following chips support both FLASH and RAM download and can set DIRECT_LOAD=1 if desired:
+>
+   - CYW20835
+   - CYW20706
+
+## Building and downloading code examples
 
 **Using the ModusToolbox&#8482; Eclipse IDE**
 
-1. Install ModusToolbox&#8482; 2.2 (or higher).
+1. Install ModusToolbox&#8482; 2.4.1 (or higher).
 2. In the ModusToolbox&#8482; Eclipse IDE, click the **New Application** link in the Quick Panel (or, use **File > New > ModusToolbox IDE Application**).
 3. Pick your board for BTSDK under AIROC&#8482; Bluetooth&#174; BSPs.
 4. Select the application in the IDE.
 5. In the Quick Panel, select **Build** to build the application.
 6. To program the board (download the application), select **Program** in the Launches section of the Quick Panel.
 
-
 **Using command line**
 
-1. Install ModusToolbox&#8482; 2.2 (or higher).
+1. Install ModusToolbox&#8482; 2.4.1 (or higher).
 2. On Windows, use Cygwin from \ModusToolbox\tools_2.x\modus-shell\Cygwin.bat to build apps.
 3. Use the tool 'project-creator-cli' under \ModusToolbox\tools_2.x\project-creator\ to create your application.<br/>
    > project-creator-cli --board-id (BSP) --app-id (appid) -d (dir) <br/>
@@ -94,8 +105,6 @@ Application settings below are common for all BTSDK applications and can be conf
    > make program<br/><br>
    Note: make program = make build + make qprogram
 
-## Downloading an application to a board
-
 If you have issues downloading to the board, follow the steps below:
 
 - Press and hold the 'Recover' button on the board.
@@ -103,7 +112,7 @@ If you have issues downloading to the board, follow the steps below:
 - Release the 'Reset' button.
 - After one second, release the 'Recover' button.
 
-Note: this is only applicable to boards that download application images to FLASH storage. Boards that only support RAM download (DIRECT_LOAD) such as CYW9M2BASE-43012BT can be power cycled to boot from ROM.
+Note: this is only applicable to boards that download application images to FLASH storage. Boards that only support RAM download (DIRECT_LOAD) such as CYW9M2BASE-43012BT or CYW943022BTEVK-01 can be power cycled to boot from ROM.
 
 ## Over The Air (OTA) Firmware Upgrade
 Applications that support OTA upgrade can be updated via the peer OTA app in:<br>
@@ -141,19 +150,21 @@ Note: this is a list of all features and profiles supported in BTSDK, but some A
 ## List of boards available for use with BTSDK
 
 - [CYW20819A1 chip](https://github.com/Infineon/20819A1)
-    - [CYW920819EVB-02](https://github.com/Infineon/TARGET_CYW920819EVB-02), [CYW920819M2EVB-01](https://github.com/Infineon/TARGET_CYW920819M2EVB-01), [CYBT-213043-MESH](https://github.com/infineon/TARGET_CYBT-213043-MESH), [CYBT-213043-EVAL](https://github.com/infineon/TARGET_CYBT-213043-EVAL), [CYW920819REF-KB-01](https://github.com/infineon/TARGET_CYW920819REF-KB-01), [CYBT-223058-EVAL](https://github.com/infineon/TARGET_CYBT-223058-EVAL), [CYBT-263065-EVAL](https://github.com/infineon/TARGET_CYBT-263065-EVAL), [CYBT-273063-EVAL](https://github.com/infineon/TARGET_CYBT-273063-EVAL)
-- [CYW20820A1 chip](https://github.com/infineon/20820A1)
-    - [CYW920820EVB-02](https://github.com/infineon/TARGET_CYW920820EVB-02), [CYW989820M2EVB-01](https://github.com/infineon/TARGET_CYW989820M2EVB-01), [CYW989820EVB-01](https://github.com/infineon/TARGET_CYW989820EVB-01), [CYBT-243053-EVAL](https://github.com/infineon/TARGET_CYBT-243053-EVAL), [CYBT-253059-EVAL](https://github.com/infineon/TARGET_CYBT-253059-EVAL), [CYW920820M2EVB-01](https://github.com/Infineon/TARGET_CYW920820M2EVB-01)
-- [CYW20721B2 chip](https://github.com/infineon/20721B2)
-    - [CYW920721M2EVK-01](https://github.com/infineon/TARGET_CYW920721M2EVK-01), [CYW920721M2EVK-02](https://github.com/infineon/TARGET_CYW920721M2EVK-02), [CYW920721M2EVB-03](https://github.com/Infineon/TARGET_CYW920721M2EVB-03), [CYBT-423060-EVAL](https://github.com/infineon/TARGET_CYBT-423060-EVAL), [CYBT-483062-EVAL](https://github.com/infineon/TARGET_CYBT-483062-EVAL), [CYBT-413061-EVAL](https://github.com/infineon/TARGET_CYBT-413061-EVAL)
-- [CYW20719B2 chip](https://github.com/infineon/20719B2)
-    - [CYW920719B2Q40EVB-01](https://github.com/infineon/TARGET_CYW920719B2Q40EVB-01), [CYBT-423054-EVAL](https://github.com/infineon/TARGET_CYBT-423054-EVAL), [CYBT-413055-EVAL](https://github.com/infineon/TARGET_CYBT-413055-EVAL), [CYBT-483056-EVAL](https://github.com/infineon/TARGET_CYBT-483056-EVAL)
-- [CYW20706A2 chip](https://github.com/infineon/20706A2)
-    - [CYW920706WCDEVAL](https://github.com/infineon/TARGET_CYW920706WCDEVAL), [CYBT-353027-EVAL](https://github.com/infineon/TARGET_CYBT-353027-EVAL), [CYBT-343026-EVAL](https://github.com/infineon/TARGET_CYBT-343026-EVAL), [CYBT-333047-EVAL](https://github.com/Infineon/TARGET_CYBT-333047-EVAL)
-- [CYW20835B1 chip](https://github.com/infineon/20835B1)
-    - [CYW920835REF-RCU-01](https://github.com/infineon/TARGET_CYW920835REF-RCU-01), [CYW920835M2EVB-01](https://github.com/infineon/TARGET_CYW920835M2EVB-01), [CYBLE-343072-EVAL-M2B](https://github.com/Infineon/TARGET_CYBLE-343072-EVAL-M2B), [CYBLE-333074-EVAL-M2B](https://github.com/Infineon/TARGET_CYBLE-333074-EVAL-M2B), [CYBLE-343072-MESH](https://github.com/Infineon/TARGET_CYBLE-343072-MESH)
-- [CYW43012C0 chip](https://github.com/infineon/43012C0)
+    - [CYW920819EVB-02](https://github.com/Infineon/TARGET_CYW920819EVB-02), [CYW920819M2EVB-01](https://github.com/Infineon/TARGET_CYW920819M2EVB-01), [CYBT-213043-MESH](https://github.com/Infineon/TARGET_CYBT-213043-MESH), [CYBT-213043-EVAL](https://github.com/Infineon/TARGET_CYBT-213043-EVAL), [CYBT-223058-EVAL](https://github.com/Infineon/TARGET_CYBT-223058-EVAL), [CYBT-263065-EVAL](https://github.com/Infineon/TARGET_CYBT-263065-EVAL), [CYBT-273063-EVAL](https://github.com/Infineon/TARGET_CYBT-273063-EVAL)
+- [CYW20820A1 chip](https://github.com/Infineon/20820A1)
+    - [CYW920820EVB-02](https://github.com/Infineon/TARGET_CYW920820EVB-02), [CYW989820M2EVB-01](https://github.com/Infineon/TARGET_CYW989820M2EVB-01), [CYW989820EVB-01](https://github.com/Infineon/TARGET_CYW989820EVB-01), [CYBT-243053-EVAL](https://github.com/Infineon/TARGET_CYBT-243053-EVAL), [CYBT-253059-EVAL](https://github.com/Infineon/TARGET_CYBT-253059-EVAL), [CYW920820M2EVB-01](https://github.com/Infineon/TARGET_CYW920820M2EVB-01), [Vela-IF820-INT-ANT-DVK](https://github.com/Infineon/TARGET_Vela-IF820-INT-ANT-DVK), [Vela-IF820-EXT-ANT-DVK](https://github.com/Infineon/TARGET_Vela-IF820-EXT-ANT-DVK)
+- [CYW20721B2 chip](https://github.com/Infineon/20721B2)
+    - [CYW920721M2EVK-01](https://github.com/Infineon/TARGET_CYW920721M2EVK-01), [CYW920721M2EVK-02](https://github.com/Infineon/TARGET_CYW920721M2EVK-02), [CYW920721M2EVB-03](https://github.com/Infineon/TARGET_CYW920721M2EVB-03), [CYBT-423060-EVAL](https://github.com/Infineon/TARGET_CYBT-423060-EVAL), [CYBT-483062-EVAL](https://github.com/Infineon/TARGET_CYBT-483062-EVAL), [CYBT-413061-EVAL](https://github.com/Infineon/TARGET_CYBT-413061-EVAL)
+- [CYW20719B2 chip](https://github.com/Infineon/20719B2)
+    - [CYW920719B2Q40EVB-01](https://github.com/Infineon/TARGET_CYW920719B2Q40EVB-01), [CYBT-423054-EVAL](https://github.com/Infineon/TARGET_CYBT-423054-EVAL), [CYBT-413055-EVAL](https://github.com/Infineon/TARGET_CYBT-413055-EVAL), [CYBT-483056-EVAL](https://github.com/Infineon/TARGET_CYBT-483056-EVAL)
+- [CYW20706A2 chip](https://github.com/Infineon/20706A2)
+    - [CYW920706WCDEVAL](https://github.com/Infineon/TARGET_CYW920706WCDEVAL), [CYBT-353027-EVAL](https://github.com/Infineon/TARGET_CYBT-353027-EVAL), [CYBT-343026-EVAL](https://github.com/Infineon/TARGET_CYBT-343026-EVAL), [CYBT-333047-EVAL](https://github.com/Infineon/TARGET_CYBT-333047-EVAL)
+- [CYW20835B1 chip](https://github.com/Infineon/20835B1)
+    - [CYW920835REF-RCU-01](https://github.com/Infineon/TARGET_CYW920835REF-RCU-01), [CYW920835M2EVB-01](https://github.com/Infineon/TARGET_CYW920835M2EVB-01), [CYBLE-343072-EVAL-M2B](https://github.com/Infineon/TARGET_CYBLE-343072-EVAL-M2B), [CYBLE-333074-EVAL-M2B](https://github.com/Infineon/TARGET_CYBLE-333074-EVAL-M2B), [CYBLE-343072-MESH](https://github.com/Infineon/TARGET_CYBLE-343072-MESH)
+- [CYW43012C0 chip](https://github.com/Infineon/43012C0)
     - [CYW9M2BASE-43012BT](https://github.com/Infineon/TARGET_CYW9M2BASE-43012BT), [CYW943012BTEVK-01](https://github.com/Infineon/TARGET_CYW943012BTEVK-01)
+- [CYW43022C1 chip](https://github.com/Infineon/43022C1)
+    - [CYW943022BTEVK-01](https://github.com/Infineon/TARGET_CYW943022BTEVK-01)
 - [CYW20736A1 chip](https://github.com/Infineon/20736A1)
     - [CYW920736M2EVB-01](https://github.com/Infineon/TARGET_CYW920736M2EVB-01)
 - [CYW30739A0 chip](https://github.com/Infineon/30739A0)
@@ -255,6 +266,8 @@ The following tool applications are installed on your computer either with Modus
     Note: The pin mapping is based on wiced\_platform.h for your board.<br>
     Location:  \<Install Dir>\tools_2.x\device-configurator
 
+Note: Not all BTSDK chips support Device Configurator. BSPs using the following devices do not currently support Device Configurator: CYW20706, CYW20736
+
 **Bluetooth&#174; Configurator:**<br>
 >   Use this GUI tool to create and configure the LE GATT Database and the BR/EDR SDP Database, generated as source code for your
     application.<br>
@@ -269,7 +282,7 @@ To view application traces, there are 2 methods available. Note that the
 application needs to configure the tracing options.<br>
 
 1. "WICED Peripheral UART" - Open this port on your computer using a serial port
-utility such as Tera Term or PuTTY (usually using 115200 baud rate for non-Mesh apps, and 921600 for Mesh apps).<br>
+utility such as TeraTerm or PuTTY (usually using 115200 baud rate for non-Mesh apps, and 921600 for Mesh apps).<br>
 2. "WICED HCI UART" - Open this port on your computer using the Client Control
 application mentioned above (usually using 3M baud rate). Then run the BTSpy
 utility mentioned above.
@@ -284,47 +297,7 @@ The application makefile has a default BSP. See "TARGET". The makefile also has 
 
 #### b. Custom BSP
 
-**Complete BSP**
-
-To create and use a complete custom BSP that you want to use in applications, perform the following steps:
-
-1. Select an existing BSP created through ModusToolbox&#8482; Project Creator that you wish to use as a template.
-2. Make a copy in the same folder and rename it. For example mtb\_shared\wiced\_btsdk\dev-kit\bsp\TARGET\_mybsp.<br/>
-   **Note:** This can be done in the system File Explorer and then refresh the workspace in ModusToolbox&#8482; to see the new project.  Delete the .git sub-folder from the newly copied folder before refreshing in Eclipse.
-   If done in the IDE, an error dialog may appear complaining about items in the .git folder being out of sync.  This can be resolved by deleting the .git sub-folder in the newly copied folder.
-
-3. In the new mtb\_shared\wiced\_btsdk\dev-kit\bsp\TARGET\_mybsp\release-vX.X.X\ folder, rename the existing/original (BSP).mk file to mybsp.mk.
-4. In the application makefile, set TARGET=mybsp and add it to SUPPORTED\_TARGETS.
-5. In the application libs folder, edit the mtb.mk file and replace all instances of the template BSP name string with 'mybsp'.
-6. Update design.modus for your custom BSP if needed using the **Device Configurator** link under **Configurators** in the Quick Panel.
-7. Update the application makefile as needed for other custom BSP specific attributes and build the application.
-
-**Custom Pin Configuration Only - Multiple Apps**
-
-To create a custom pin configuration to be used by multiple applications using an existing BSP that supports Device Configurator, perform the following steps:
-
-1. Create a folder COMPONENT\_(CUSTOM)\_design\_modus in the existing BSP folder. For example mtb\_shared\wiced\_btsdk\dev-kit\bsp\TARGET\_CYW920819EVB-02\release-vX.X.X\COMPONENT\_my\_design\_modus
-2. Copy the file design.modus from the reference BSP COMPONENT\_bsp\_design\_modus folder under mtb\_shared\wiced\_btsdk\dev-kit\bsp\ and place the file in the newly created COMPONENT\_(CUSTOM)\_design\_modus folder.
-3. In the application makefile, add the following two lines<br/>
-   DISABLE\_COMPONENTS+=bsp\_design\_modus<br/>
-   COMPONENTS+=(CUSTOM)\_design\_modus<br/>
-   (for example COMPONENTS+=my\_design\_modus)
-4. Update design.modus for your custom pin configuration if needed using the **Device Configurator** link under **Configurators** in the Quick Panel.
-5. Building of the application will generate pin configuration source code under a GeneratedSource folder in the new COMPONENT\_(CUSTOM)\_design\_modus folder.
-
-**Custom Pin Configuration Only - Per App**
-
-To create a custom configuration to be used by a single application from an existing BSP that supports Device Configurator, perform the following steps:
-
-1. Create a folder COMPONENT\_(BSP)\_design\_modus in your application. For example COMPONENT\_CYW920721M2EVK-02\_design\_modus
-2. Copy the file design.modus from the reference BSP under mtb\_shared\wiced\_btsdk\dev-kit\bsp\ and place the file in this folder.
-3. In the application makefile, add the following two lines<br/>
-   DISABLE\_COMPONENTS+=bsp\_design\_modus<br/>
-   COMPONENTS+=(BSP)\_design\_modus<br/>
-   (for example COMPONENTS+=CYW920721M2EVK-02\_design\_modus)
-4. Update design.modus for your custom pin configuration if needed using the **Device Configurator** link under **Configurators** in the Quick Panel.
-5. Building of the application will generate pin configuration source code under the GeneratedSource folder in your application.
-
+To create a custom BSP from a BSP template for BTSDK devices, see the following KBA article: [KBA238530](https://community.infineon.com/t5/Knowledge-Base-Articles/Create-custom-BTSDK-BSP-using-ModusToolbox-version-3-x-KBA238530/ta-p/479355)
 
 ## Using libraries
 
@@ -339,3 +312,6 @@ BTSDK API documentation is available [online](https://infineon.github.io/btsdk-d
 Note: For offline viewing, git clone the [documentation repo](https://github.com/Infineon/btsdk-docs)
 
 BTSDK Technical Brief and Release Notes are available [online](https://community.infineon.com/t5/Bluetooth-SDK/bd-p/ModusToolboxBluetoothSDK)
+
+<br>
+<sup>The Bluetooth&#174; word mark and logos are registered trademarks owned by Bluetooth SIG, Inc., and any use of such marks by Infineon is under license.</sup>
